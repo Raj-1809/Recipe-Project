@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe Finder App</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-ENjdO4Dr2bkBIFxQpeoYz1NHNQ5FfYWVQz2RphHYVHEniB0Rvr10sMxUjXK3yZ8l" crossorigin="anonymous">
+    <style>
+        body { background-color: #f8f9fa; padding: 2rem; }
+        .instructions { white-space: pre-wrap; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center mb-4">Recipe Finder</h1>
+        <p class="lead text-center">Select the ingredients you have at home and discover what you can cook!</p>
+        <!-- Selection Section -->
+        <div id="selection">
+            <div id="ingredientAccordion" class="accordion mb-3">
+                <!-- categories and ingredients will be injected here -->
+            </div>
+            <div class="text-center">
+                <button id="findBtn" class="btn btn-primary btn-lg">Find Recipes</button>
+            </div>
+        </div>
+        <!-- Results Section -->
+        <div id="results" class="hidden">
+            <div class="mb-3">
+                <button id="backBtn" class="btn btn-secondary">&larr; Back</button>
+            </div>
+            <div class="mb-3">
+                <label for="sortSelect" class="form-label">Sort by:</label>
+                <select id="sortSelect" class="form-select" style="width: auto; display: inline-block;">
+                    <option value="protein" selected>Protein (high to low)</option>
+                    <option value="calories">Calories (low to high)</option>
+                    <option value="carbs">Carbs (low to high)</option>
+                    <option value="fat">Fat (low to high)</option>
+                    <option value="time">Time (short to long)</option>
+                </select>
+            </div>
+            <div class="table-responsive">
+                <table id="resultsTable" class="table table-striped table-bordered align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Name</th>
+                            <th>Cuisine</th>
+                            <th>Time (min)</th>
+                            <th>Protein (g)</th>
+                            <th>Carbs (g)</th>
+                            <th>Fat (g)</th>
+                            <th>Calories</th>
+                            <th>Instructions</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+        <footer class="text-center mt-4">© 2025 Recipe Finder | Cuisines: North Indian, South Indian, European, British, Healthy Fast Food</footer>
+    </div>
+
+    <!-- Data embedded as JSON constants -->
+    <script>
+    // Ingredient and recipe data
+    const ingredientsData = [{"ingredient": "spinach", "category": "vegetable", "protein": 2.9, "carbs": 3.6, "fat": 0.4, "calories": 23}, {"ingredient": "fenugreek leaves", "category": "vegetable", "protein": 4.0, "carbs": 8.0, "fat": 1.0, "calories": 49}, {"ingredient": "amaranth leaves", "category": "vegetable", "protein": 3.5, "carbs": 4.8, "fat": 0.5, "calories": 29}, {"ingredient": "mustard leaves", "category": "vegetable", "protein": 2.7, "carbs": 4.7, "fat": 0.4, "calories": 27}, {"ingredient": "potato", "category": "vegetable", "protein": 2.0, "carbs": 20.0, "fat": 0.1, "calories": 87}, {"ingredient": "sweet potato", "category": "vegetable", "protein": 1.6, "carbs": 20.0, "fat": 0.1, "calories": 86}, {"ingredient": "carrot", "category": "vegetable", "protein": 0.9, "carbs": 10.0, "fat": 0.2, "calories": 41}, {"ingredient": "radish", "category": "vegetable", "protein": 0.7, "carbs": 3.4, "fat": 0.1, "calories": 16}, {"ingredient": "beetroot", "category": "vegetable", "protein": 1.6, "carbs": 9.6, "fat": 0.2, "calories": 43}, {"ingredient": "taro root", "category": "vegetable", "protein": 1.5, "carbs": 34.0, "fat": 0.1, "calories": 142}, {"ingredient": "turnip", "category": "vegetable", "protein": 0.9, "carbs": 6.4, "fat": 0.1, "calories": 28}, {"ingredient": "onion", "category": "vegetable", "protein": 1.1, "carbs": 9.0, "fat": 0.1, "calories": 40}, {"ingredient": "garlic", "category": "vegetable", "protein": 6.4, "carbs": 33.0, "fat": 0.5, "calories": 149}, {"ingredient": "ginger", "category": "vegetable", "protein": 1.8, "carbs": 17.8, "fat": 0.8, "calories": 80}, {"ingredient": "tomato", "category": "vegetable", "protein": 0.9, "carbs": 3.9, "fat": 0.2, "calories": 18}, {"ingredient": "bell pepper", "category": "vegetable", "protein": 1.0, "carbs": 6.0, "fat": 0.3, "calories": 31}, {"ingredient": "okra", "category": "vegetable", "protein": 1.9, "carbs": 7.5, "fat": 0.2, "calories": 33}, {"ingredient": "eggplant", "category": "vegetable", "protein": 0.8, "carbs": 8.3, "fat": 0.2, "calories": 35}, {"ingredient": "cauliflower", "category": "vegetable", "protein": 1.9, "carbs": 5.0, "fat": 0.3, "calories": 25}, {"ingredient": "cabbage", "category": "vegetable", "protein": 1.3, "carbs": 6.0, "fat": 0.1, "calories": 25}, {"ingredient": "green peas", "category": "vegetable", "protein": 5.0, "carbs": 14.0, "fat": 0.4, "calories": 81}, {"ingredient": "green beans", "category": "vegetable", "protein": 1.8, "carbs": 7.0, "fat": 0.1, "calories": 31}, {"ingredient": "sweet corn", "category": "vegetable", "protein": 3.4, "carbs": 21.0, "fat": 1.2, "calories": 99}, {"ingredient": "pumpkin", "category": "vegetable", "protein": 1.0, "carbs": 7.0, "fat": 0.1, "calories": 28}, {"ingredient": "bottle gourd", "category": "vegetable", "protein": 0.6, "carbs": 4.0, "fat": 0.1, "calories": 16}, {"ingredient": "bitter gourd", "category": "vegetable", "protein": 1.0, "carbs": 4.0, "fat": 0.2, "calories": 24}, {"ingredient": "ridge gourd", "category": "vegetable", "protein": 1.2, "carbs": 2.0, "fat": 0.1, "calories": 13}, {"ingredient": "snake gourd", "category": "vegetable", "protein": 1.0, "carbs": 3.0, "fat": 0.1, "calories": 18}, {"ingredient": "paneer", "category": "dairy", "protein": 14.0, "carbs": 3.3, "fat": 21.0, "calories": 257}, {"ingredient": "milk", "category": "dairy", "protein": 3.4, "carbs": 5.0, "fat": 3.6, "calories": 64}, {"ingredient": "yogurt", "category": "dairy", "protein": 10.0, "carbs": 3.6, "fat": 3.3, "calories": 61}, {"ingredient": "cheese", "category": "dairy", "protein": 25.0, "carbs": 1.3, "fat": 33.0, "calories": 402}, {"ingredient": "ghee", "category": "fat", "protein": 0.0, "carbs": 0.0, "fat": 100.0, "calories": 900}, {"ingredient": "olive oil", "category": "fat", "protein": 0.0, "carbs": 0.0, "fat": 100.0, "calories": 884}, {"ingredient": "butter", "category": "fat", "protein": 0.5, "carbs": 0.1, "fat": 81.0, "calories": 717}, {"ingredient": "flour", "category": "grain", "protein": 10.0, "carbs": 76.0, "fat": 1.0, "calories": 364}, {"ingredient": "wheat flour", "category": "grain", "protein": 13.0, "carbs": 72.0, "fat": 1.5, "calories": 340}, {"ingredient": "rice", "category": "grain", "protein": 2.7, "carbs": 28.0, "fat": 0.3, "calories": 130}, {"ingredient": "brown rice", "category": "grain", "protein": 2.6, "carbs": 23.0, "fat": 0.9, "calories": 111}, {"ingredient": "quinoa", "category": "grain", "protein": 4.4, "carbs": 21.3, "fat": 1.9, "calories": 120}, {"ingredient": "oats", "category": "grain", "protein": 16.9, "carbs": 66.3, "fat": 6.9, "calories": 389}, {"ingredient": "pasta", "category": "grain", "protein": 5.5, "carbs": 25.0, "fat": 1.0, "calories": 131}, {"ingredient": "bread", "category": "grain", "protein": 8.7, "carbs": 49.0, "fat": 3.3, "calories": 265}, {"ingredient": "chicken breast", "category": "protein", "protein": 31.0, "carbs": 0.0, "fat": 3.6, "calories": 165}, {"ingredient": "chicken thigh", "category": "protein", "protein": 25.0, "carbs": 0.0, "fat": 9.0, "calories": 209}, {"ingredient": "beef", "category": "protein", "protein": 26.0, "carbs": 0.0, "fat": 15.0, "calories": 250}, {"ingredient": "lamb", "category": "protein", "protein": 25.0, "carbs": 0.0, "fat": 21.0, "calories": 294}, {"ingredient": "pork", "category": "protein", "protein": 27.0, "carbs": 0.0, "fat": 8.0, "calories": 221}, {"ingredient": "cod", "category": "protein", "protein": 18.0, "carbs": 0.0, "fat": 1.0, "calories": 82}, {"ingredient": "salmon", "category": "protein", "protein": 20.0, "carbs": 0.0, "fat": 13.0, "calories": 206}, {"ingredient": "egg", "category": "protein", "protein": 12.0, "carbs": 1.1, "fat": 10.0, "calories": 155}, {"ingredient": "tofu", "category": "protein", "protein": 8.0, "carbs": 2.0, "fat": 4.8, "calories": 76}, {"ingredient": "chickpeas", "category": "pulse", "protein": 8.9, "carbs": 27.4, "fat": 2.6, "calories": 164}, {"ingredient": "kidney beans", "category": "pulse", "protein": 8.7, "carbs": 22.8, "fat": 0.5, "calories": 127}, {"ingredient": "lentils", "category": "pulse", "protein": 9.0, "carbs": 20.0, "fat": 0.4, "calories": 116}, {"ingredient": "black beans", "category": "pulse", "protein": 8.9, "carbs": 23.7, "fat": 0.5, "calories": 132}, {"ingredient": "peas", "category": "pulse", "protein": 5.4, "carbs": 14.0, "fat": 0.4, "calories": 81}];
+
+    const recipesData = [{"id": 1, "name": "Butter Chicken", "cuisine": "North Indian", "ingredients": "chicken thigh:500; onion:100; tomato:200; garlic:10; ginger:10; butter:50; yogurt:50; milk:50; ghee:20", "time": 45, "protein": 135.7, "carbs": 26.2, "fat": 109.6, "calories": 1744.9, "instructions": "Marinate chicken with yogurt and spices. Cook onions, garlic, ginger, tomatoes with butter until soft, add marinated chicken and simmer. Finish with cream or milk."}, {"id": 2, "name": "Palak Paneer", "cuisine": "North Indian", "ingredients": "spinach:300; paneer:200; onion:100; tomato:100; garlic:10; ginger:10; milk:50; ghee:15", "time": 30, "protein": 41.2, "carbs": 37.9, "fat": 60.4, "calories": 830.9, "instructions": "Blanch spinach and blend to a puree. Sauté onions, garlic, ginger, tomatoes in ghee, add spinach puree and spices. Add paneer cubes and simmer with milk."}, {"id": 3, "name": "Chole", "cuisine": "North Indian", "ingredients": "chickpeas:250; onion:100; tomato:150; garlic:10; ginger:10; olive oil:20", "time": 35, "protein": 25.5, "carbs": 88.4, "fat": 27.0, "calories": 676.7, "instructions": "Cook soaked chickpeas until tender. Sauté onions, ginger, garlic, tomatoes with spices in oil. Combine chickpeas and simmer until flavors meld."}, {"id": 4, "name": "Rajma", "cuisine": "North Indian", "ingredients": "kidney beans:250; onion:100; tomato:150; garlic:10; ginger:10; olive oil:20", "time": 40, "protein": 25.0, "carbs": 76.9, "fat": 21.8, "calories": 584.2, "instructions": "Cook soaked kidney beans until soft. Fry onions, ginger, garlic, tomatoes with spices. Add cooked beans and simmer for a thick gravy."}, {"id": 5, "name": "Dal Makhani", "cuisine": "North Indian", "ingredients": "black beans:200; kidney beans:50; butter:30; milk:50; onion:100; tomato:100; ginger:10; garlic:10", "time": 60, "protein": 26.8, "carbs": 79.3, "fat": 27.8, "calories": 655.5, "instructions": "Cook black beans and kidney beans until tender. Sauté onions, ginger, garlic, tomatoes in butter, add cooked beans and simmer with milk for creamy texture."}, {"id": 6, "name": "Aloo Gobi", "cuisine": "North Indian", "ingredients": "potato:200; cauliflower:200; onion:100; tomato:100; garlic:10; ginger:10; olive oil:20", "time": 30, "protein": 10.6, "carbs": 68.0, "fat": 21.2, "calories": 481.7, "instructions": "Sauté onions, garlic, ginger in oil. Add potatoes and cauliflower with spices and cook until tender, adding tomatoes towards the end."}, {"id": 7, "name": "Chicken Biryani", "cuisine": "North Indian", "ingredients": "chicken thigh:500; rice:300; onion:150; tomato:200; yogurt:100; ginger:10; garlic:10; olive oil:30; ghee:20", "time": 60, "protein": 147.4, "carbs": 114.0, "fat": 99.9, "calories": 2060.1, "instructions": "Marinate chicken with yogurt and spices. Fry onions until golden. Layer partially cooked rice and chicken, add tomatoes and spices, and cook on low heat until done."}, {"id": 8, "name": "Paneer Tikka Masala", "cuisine": "North Indian", "ingredients": "paneer:300; onion:100; tomato:200; bell pepper:100; yogurt:100; garlic:10; ginger:10; olive oil:20", "time": 40, "protein": 56.7, "carbs": 41.4, "fat": 87.2, "calories": 1138.7, "instructions": "Marinate paneer and bell peppers with yogurt and spices. Grill or pan-fry. Prepare a sauce with onions, tomatoes, garlic, ginger and spices; add grilled paneer and peppers."}, {"id": 9, "name": "Kadhai Paneer", "cuisine": "North Indian", "ingredients": "paneer:250; onion:100; bell pepper:150; tomato:200; garlic:10; ginger:10; olive oil:20", "time": 30, "protein": 40.2, "carbs": 39.1, "fat": 73.6, "calories": 964.7, "instructions": "Sauté onions, ginger, garlic. Add bell peppers and tomatoes with spices and cook until soft. Add paneer cubes and simmer briefly."}, {"id": 10, "name": "Aloo Paratha", "cuisine": "North Indian", "ingredients": "wheat flour:200; potato:250; onion:50; ghee:20", "time": 40, "protein": 31.6, "carbs": 198.5, "fat": 23.3, "calories": 1097.5, "instructions": "Make dough from wheat flour. Prepare spiced mashed potato filling with onions. Stuff and roll out parathas, then cook on a griddle with ghee."}, {"id": 11, "name": "Masala Dosa", "cuisine": "South Indian", "ingredients": "rice:200; lentils:50; potato:200; onion:100; olive oil:20", "time": 60, "protein": 15.0, "carbs": 115.0, "fat": 21.1, "calories": 708.8, "instructions": "Ferment rice and lentils batter overnight. Prepare spiced potato filling. Spread batter on a griddle, cook until crisp, fill with potato masala."}, {"id": 12, "name": "Idli with Sambar", "cuisine": "South Indian", "ingredients": "rice:200; lentils:100; pumpkin:100; carrot:100; onion:100; lentils:50; olive oil:15", "time": 90, "protein": 21.9, "carbs": 112.0, "fat": 16.6, "calories": 675.6, "instructions": "Ferment rice and lentils to make idli batter. Steam idli cakes. Cook lentils with vegetables and spices to make sambar."}, {"id": 13, "name": "Rasam", "cuisine": "South Indian", "ingredients": "tomato:200; lentils:50; garlic:10; ginger:10; olive oil:10", "time": 30, "protein": 7.1, "carbs": 22.9, "fat": 10.7, "calories": 205.3, "instructions": "Simmer tomatoes, lentils and spices with tamarind water to make a tangy broth. Finish with tempered spices."}, {"id": 14, "name": "Chicken 65", "cuisine": "South Indian", "ingredients": "chicken thigh:400; yogurt:50; olive oil:30", "time": 30, "protein": 105.0, "carbs": 1.8, "fat": 67.6, "calories": 1131.7, "instructions": "Marinate chicken pieces with yogurt and spices. Deep-fry or pan-fry until crisp, toss with curry leaves and chilies."}, {"id": 15, "name": "Vegetable Upma", "cuisine": "South Indian", "ingredients": "wheat flour:200; green peas:50; carrot:50; onion:50; olive oil:20", "time": 20, "protein": 29.5, "carbs": 160.5, "fat": 23.4, "calories": 937.8, "instructions": "Roast semolina (represented by wheat flour). Sauté onions and vegetables with mustard seeds. Add water and semolina, cook until fluffy."}, {"id": 16, "name": "Spaghetti Bolognese", "cuisine": "European", "ingredients": "pasta:300; beef:400; tomato:300; onion:100; garlic:10; olive oil:20; carrot:100", "time": 45, "protein": 125.8, "carbs": 109.0, "fat": 84.0, "calories": 1719.7, "instructions": "Brown beef in olive oil, add onions, garlic, carrots and tomatoes, simmer into a thick sauce. Serve over cooked spaghetti."}, {"id": 17, "name": "Margherita Pizza", "cuisine": "European", "ingredients": "flour:300; tomato:200; cheese:200; olive oil:10", "time": 30, "protein": 81.8, "carbs": 238.4, "fat": 79.4, "calories": 2020.4, "instructions": "Prepare dough from flour and yeast. Spread tomato sauce, add cheese and bake until crust is crisp and cheese melts."}, {"id": 18, "name": "Ratatouille", "cuisine": "European", "ingredients": "eggplant:200; ridge gourd:200; bell pepper:200; tomato:200; onion:100; olive oil:30", "time": 40, "protein": 8.9, "carbs": 49.4, "fat": 31.7, "calories": 499.2, "instructions": "Sauté all vegetables in olive oil with herbs until tender. Layer and bake if desired."}, {"id": 19, "name": "Paella", "cuisine": "European", "ingredients": "rice:300; chicken thigh:300; cod:200; green peas:100; bell pepper:100; olive oil:20; tomato:100", "time": 45, "protein": 126.0, "carbs": 107.9, "fat": 50.8, "calories": 1487.8, "instructions": "Sauté meats and vegetables in olive oil, add rice, tomatoes and stock, cook until rice is tender and liquid absorbed."}, {"id": 20, "name": "Greek Salad", "cuisine": "European", "ingredients": "tomato:200; ridge gourd:200; onion:50; cheese:100; olive oil:20", "time": 10, "protein": 29.8, "carbs": 17.6, "fat": 53.6, "calories": 660.8, "instructions": "Combine chopped vegetables with feta cheese and olives, dress with olive oil and herbs."}, {"id": 21, "name": "French Omelette", "cuisine": "European", "ingredients": "egg:200; butter:10; milk:20", "time": 10, "protein": 24.7, "carbs": 3.2, "fat": 28.8, "calories": 394.5, "instructions": "Whisk eggs with milk, cook gently in butter until just set. Fold and serve."}, {"id": 22, "name": "Crepes", "cuisine": "European", "ingredients": "flour:150; milk:200; egg:100; butter:20", "time": 20, "protein": 33.9, "carbs": 125.1, "fat": 34.9, "calories": 972.4, "instructions": "Blend batter of flour, milk, eggs. Cook thin crepes on a greased pan, flipping once."}, {"id": 23, "name": "Pasta Alfredo", "cuisine": "European", "ingredients": "pasta:300; butter:30; milk:100; cheese:100; garlic:10", "time": 20, "protein": 45.7, "carbs": 84.6, "fat": 64.0, "calories": 1089.0, "instructions": "Cook pasta. Prepare sauce by melting butter, adding garlic, milk and cheese until creamy. Toss pasta in sauce."}, {"id": 24, "name": "Chicken Carbonara", "cuisine": "European", "ingredients": "pasta:300; chicken thigh:300; egg:100; cheese:50; garlic:10", "time": 25, "protein": 116.6, "carbs": 80.0, "fat": 56.6, "calories": 1390.9, "instructions": "Cook pasta and sauté chicken. Mix eggs and cheese. Toss hot pasta with chicken and egg mixture, allowing heat to create a creamy sauce."}, {"id": 25, "name": "Fish and Chips", "cuisine": "British", "ingredients": "cod:300; potato:300; flour:50; egg:50; olive oil:50", "time": 30, "protein": 71.0, "carbs": 98.6, "fat": 58.8, "calories": 1208.5, "instructions": "Coat fish in batter made from flour and egg, then deep-fry. Serve with fried potato chips."}, {"id": 26, "name": "Shepherd’s Pie", "cuisine": "British", "ingredients": "lamb:300; potato:400; onion:100; carrot:100; green peas:50; butter:30", "time": 50, "protein": 87.6, "carbs": 106.0, "fat": 88.2, "calories": 1566.6, "instructions": "Cook minced lamb with onions, carrots and peas in gravy. Top with mashed potatoes and bake until golden."}, {"id": 27, "name": "Bangers and Mash", "cuisine": "British", "ingredients": "pork:300; potato:400; butter:30; milk:50; onion:100", "time": 30, "protein": 92.0, "carbs": 91.5, "fat": 50.6, "calories": 1298.1, "instructions": "Cook sausages until browned. Make mashed potatoes with milk and butter. Serve sausages over mash with onion gravy."}, {"id": 28, "name": "Beans on Toast", "cuisine": "British", "ingredients": "kidney beans:200; bread:100; butter:10", "time": 10, "protein": 26.2, "carbs": 94.6, "fat": 12.4, "calories": 590.7, "instructions": "Heat beans in a sauce. Toast bread, butter it and top with warm beans."}, {"id": 29, "name": "Full English Breakfast", "cuisine": "British", "ingredients": "egg:200; pork:150; pork:100; eggplant:100; kidney beans:100; tomato:100; bread:100; butter:10", "time": 20, "protein": 110.6, "carbs": 86.2, "fat": 52.3, "calories": 1379.2, "instructions": "Fry eggs, sausages (pork) and bacon (pork) with mushrooms (eggplant) and tomatoes. Serve with beans and toast."}, {"id": 30, "name": "Ploughman’s Lunch", "cuisine": "British", "ingredients": "bread:100; cheese:100; onion:50; butter:10", "time": 5, "protein": 34.3, "carbs": 54.8, "fat": 44.4, "calories": 758.7, "instructions": "Serve slices of bread with cheese, butter and pickled onions."}, {"id": 31, "name": "Steak and Kidney Pie", "cuisine": "British", "ingredients": "beef:300; beef:200; flour:200; onion:100; butter:30", "time": 60, "protein": 151.2, "carbs": 161.0, "fat": 101.4, "calories": 2233.1, "instructions": "Cook beef with onions into a rich filling. Make pastry from flour and butter, fill with meat mixture and bake."}, {"id": 32, "name": "Macaroni Cheese", "cuisine": "British", "ingredients": "pasta:300; cheese:200; milk:200; butter:30", "time": 25, "protein": 73.4, "carbs": 87.6, "fat": 100.5, "calories": 1540.1, "instructions": "Cook pasta. Prepare cheese sauce with butter, milk and cheese, mix with pasta and bake until bubbly."}, {"id": 33, "name": "Quinoa Salad", "cuisine": "Healthy Fast Food", "ingredients": "quinoa:200; tomato:100; ridge gourd:100; bell pepper:100; olive oil:20", "time": 15, "protein": 11.9, "carbs": 54.5, "fat": 24.4, "calories": 478.8, "instructions": "Cook quinoa and let cool. Toss with chopped vegetables and olive oil dressing."}, {"id": 34, "name": "Grilled Chicken Salad", "cuisine": "Healthy Fast Food", "ingredients": "chicken breast:200; cabbage:100; tomato:100; ridge gourd:100; olive oil:20", "time": 15, "protein": 65.4, "carbs": 11.9, "fat": 27.6, "calories": 562.8, "instructions": "Grill chicken until cooked through. Combine with chopped vegetables and drizzle with olive oil."}, {"id": 35, "name": "Veg Wrap", "cuisine": "Healthy Fast Food", "ingredients": "flour:100; chickpeas:50; olive oil:10; tomato:50; ridge gourd:50; cabbage:50; cheese:20", "time": 15, "protein": 21.2, "carbs": 95.9, "fat": 19.1, "calories": 642.8, "instructions": "Prepare a flatbread, spread hummus (mashed chickpeas) and layer with vegetables and cheese. Roll up and serve."}, {"id": 36, "name": "Chickpea Salad", "cuisine": "Healthy Fast Food", "ingredients": "chickpeas:200; ridge gourd:100; tomato:100; onion:50; olive oil:20", "time": 10, "protein": 20.4, "carbs": 65.2, "fat": 25.6, "calories": 555.8, "instructions": "Combine cooked chickpeas with chopped vegetables, season and drizzle with olive oil."}, {"id": 37, "name": "Grilled Salmon with Veggies", "cuisine": "Healthy Fast Food", "ingredients": "salmon:200; cauliflower:100; bell pepper:50; olive oil:20", "time": 15, "protein": 42.4, "carbs": 8.0, "fat": 46.4, "calories": 629.3, "instructions": "Season salmon and vegetables, grill until cooked. Serve together."}, {"id": 38, "name": "Sweet Potato Fries", "cuisine": "Healthy Fast Food", "ingredients": "sweet potato:300; olive oil:20", "time": 20, "protein": 4.8, "carbs": 60.0, "fat": 20.3, "calories": 434.8, "instructions": "Slice sweet potatoes, toss with oil and bake or air fry until crisp."}, {"id": 39, "name": "Burrito Bowl", "cuisine": "Healthy Fast Food", "ingredients": "rice:200; chicken breast:200; black beans:100; sweet corn:50; cabbage:100; tomato:100; cheese:50; olive oil:20", "time": 30, "protein": 92.7, "carbs": 100.8, "fat": 45.7, "calories": 1192.3, "instructions": "Assemble bowls with cooked rice, grilled chicken, beans, corn, chopped vegetables and cheese. Drizzle with oil or dressing."}];
+    const staples = ['garlic','ginger','salt','olive oil','butter','ghee','onion','spices'];
+
+    // Utility: group ingredients by category
+    function groupByCategory(data) {
+        const map = {};
+        data.forEach(item => {
+            const cat = item.category;
+            const name = item.ingredient;
+            if (!map[cat]) map[cat] = [];
+            map[cat].push(name);
+        });
+        // sort each category
+        Object.keys(map).forEach(cat => map[cat].sort());
+        return map;
+    }
+
+    // Render ingredient accordions
+    function renderIngredientSelection() {
+        const categories = groupByCategory(ingredientsData);
+        const accordion = document.getElementById('ingredientAccordion');
+        let index = 0;
+        for (const [category, items] of Object.entries(categories)) {
+            index += 1;
+            const collapseId = `collapse${index}`;
+            const headingId = `heading${index}`;
+            const card = document.createElement('div');
+            card.className = 'accordion-item';
+            card.innerHTML = `
+                <h2 class="accordion-header" id="${headingId}">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#${collapseId}" aria-expanded="false" aria-controls="${collapseId}">
+                        ${category.charAt(0).toUpperCase() + category.slice(1)}
+                    </button>
+                </h2>
+                <div id="${collapseId}" class="accordion-collapse collapse" aria-labelledby="${headingId}" data-bs-parent="#ingredientAccordion">
+                    <div class="accordion-body">
+                        <div class="row">
+                        ${items.map((item, idx) => {
+                            const id = `${category}-${index}-${idx}`;
+                            const label = item.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                            return `
+                            <div class="col-6 col-md-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="${item}" id="${id}">
+                                    <label class="form-check-label" for="${id}">${label}</label>
+                                </div>
+                            </div>`;
+                        }).join('')}
+                        </div>
+                    </div>
+                </div>`;
+            accordion.appendChild(card);
+        }
+    }
+
+    // Compute matching recipes based on selected ingredients
+    function findRecipes(selectedSet) {
+        const results = [];
+        recipesData.forEach(rec => {
+            // Build ingredient set
+            const ingSet = new Set(rec.ingredients.split(';').map(p => p.split(':')[0].trim().toLowerCase()));
+            const needed = new Set([...ingSet].filter(x => !staples.includes(x)));
+            let isFullMatch = true;
+            needed.forEach(name => {
+                if (!selectedSet.has(name)) isFullMatch = false;
+            });
+            if (isFullMatch) {
+                results.push(Object.assign({matchType: 'full'}, rec));
+            }
+        });
+        // If no full matches, find partial matches (at least one ingredient in common)
+        if (results.length === 0 && selectedSet.size > 0) {
+            recipesData.forEach(rec => {
+                const ingSet = new Set(rec.ingredients.split(';').map(p => p.split(':')[0].trim().toLowerCase()));
+                const common = [...ingSet].some(x => selectedSet.has(x));
+                if (common) results.push(Object.assign({matchType: 'partial'}, rec));
+            });
+        }
+        return results;
+    }
+
+    // Sort results by chosen key
+    function sortResults(list, sortKey) {
+        const sorted = list.slice();
+        if (sortKey === 'protein') {
+            sorted.sort((a,b) => b.protein - a.protein);
+        } else if (sortKey === 'calories') {
+            sorted.sort((a,b) => a.calories - b.calories);
+        } else if (sortKey === 'carbs') {
+            sorted.sort((a,b) => a.carbs - b.carbs);
+        } else if (sortKey === 'fat') {
+            sorted.sort((a,b) => a.fat - b.fat);
+        } else if (sortKey === 'time') {
+            sorted.sort((a,b) => a.time - b.time);
+        }
+        return sorted;
+    }
+
+    // Render results table
+    function renderResults(recipes) {
+        const tbody = document.querySelector('#resultsTable tbody');
+        tbody.innerHTML = '';
+        recipes.forEach(rec => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${rec.name}</td>
+                <td>${rec.cuisine}</td>
+                <td>${rec.time}</td>
+                <td>${rec.protein.toFixed(1)}</td>
+                <td>${rec.carbs.toFixed(1)}</td>
+                <td>${rec.fat.toFixed(1)}</td>
+                <td>${rec.calories.toFixed(1)}</td>
+                <td class="instructions">${rec.instructions}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    // Event handlers
+    document.addEventListener('DOMContentLoaded', () => {
+        renderIngredientSelection();
+        const findBtn = document.getElementById('findBtn');
+        const backBtn = document.getElementById('backBtn');
+        const selectionSection = document.getElementById('selection');
+        const resultsSection = document.getElementById('results');
+        const sortSelect = document.getElementById('sortSelect');
+        let currentResults = [];
+
+        findBtn.addEventListener('click', () => {
+            // Gather selected ingredients
+            const checked = document.querySelectorAll('#ingredientAccordion input[type=checkbox]:checked');
+            const selectedSet = new Set();
+            checked.forEach(cb => selectedSet.add(cb.value.toLowerCase()));
+            currentResults = findRecipes(selectedSet);
+            // Sort initial results by protein
+            currentResults = sortResults(currentResults, sortSelect.value);
+            renderResults(currentResults);
+            // Toggle visibility
+            selectionSection.classList.add('hidden');
+            resultsSection.classList.remove('hidden');
+        });
+        backBtn.addEventListener('click', () => {
+            resultsSection.classList.add('hidden');
+            selectionSection.classList.remove('hidden');
+        });
+        sortSelect.addEventListener('change', () => {
+            currentResults = sortResults(currentResults, sortSelect.value);
+            renderResults(currentResults);
+        });
+    });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-qQ2j7rwwnpnR2cMYxOAoe1vDoAI0EmvNoyYZlJdcZW+c4NR69pJq+ycbfd4r5Mep" crossorigin="anonymous"></script>
+</body>
+</html>

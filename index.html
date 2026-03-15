@@ -1,0 +1,1192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FitMeal Planner</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+<style>
+:root {
+  --bg-primary: #0d1117;
+  --bg-secondary: #161b22;
+  --bg-card: #1c2128;
+  --border-color: #30363d;
+  --text-primary: #e6edf3;
+  --text-secondary: #8b949e;
+  --protein-color: #22c55e;
+  --carbs-color: #3b82f6;
+  --fat-color: #f59e0b;
+  --cal-color: #ef4444;
+  --accent: #22c55e;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  min-height: 100vh;
+}
+/* Navbar */
+.app-header {
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
+  padding: 0.75rem 1.5rem;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.app-logo {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--accent);
+  letter-spacing: -0.5px;
+}
+.app-logo span { color: var(--text-primary); }
+.mode-btn {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  padding: 0.45rem 1.1rem;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.mode-btn:hover { border-color: var(--accent); color: var(--text-primary); }
+.mode-btn.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #000;
+}
+/* Filters Panel */
+.filters-panel {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+.filters-toggle-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.88rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: all 0.2s;
+}
+.filters-toggle-btn:hover { border-color: var(--accent); }
+.filter-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+}
+.filter-section { margin-bottom: 1rem; }
+.filter-section:last-child { margin-bottom: 0; }
+.toggle-group { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.toggle-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  padding: 0.3rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.toggle-btn:hover { border-color: var(--accent); color: var(--text-primary); }
+.toggle-btn.active { background: var(--accent); border-color: var(--accent); color: #000; font-weight: 700; }
+.allergen-chip {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  padding: 0.25rem 0.7rem;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.allergen-chip:hover { border-color: #ef4444; }
+.allergen-chip.active { background: rgba(239,68,68,0.15); border-color: #ef4444; color: #ef4444; font-weight: 700; }
+.slider-row { display: flex; align-items: center; gap: 0.75rem; }
+.slider-val {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--accent);
+  min-width: 52px;
+  text-align: right;
+}
+input[type=range] {
+  accent-color: var(--accent);
+  flex: 1;
+}
+/* Sort */
+.sort-select {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  padding: 0.4rem 0.8rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.sort-select:focus { outline: none; border-color: var(--accent); }
+/* Recipe Grid */
+.recipe-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.25rem;
+}
+.recipe-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.1rem;
+  cursor: pointer;
+  transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+.recipe-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--accent);
+  box-shadow: 0 8px 32px rgba(34,197,94,0.12);
+}
+.recipe-name {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+  line-height: 1.3;
+}
+.badge-cuisine {
+  font-size: 0.7rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 20px;
+  font-weight: 700;
+  background: rgba(59,130,246,0.15);
+  color: #3b82f6;
+  border: 1px solid rgba(59,130,246,0.3);
+}
+.badge-difficulty {
+  font-size: 0.7rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 20px;
+  font-weight: 700;
+}
+.badge-easy { background: rgba(34,197,94,0.15); color: #22c55e; border: 1px solid rgba(34,197,94,0.3); }
+.badge-medium { background: rgba(245,158,11,0.15); color: #f59e0b; border: 1px solid rgba(245,158,11,0.3); }
+.badge-hard { background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
+.meta-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin: 0.5rem 0;
+  flex-wrap: wrap;
+}
+.diet-tag { font-weight: 600; }
+.diet-veg { color: #22c55e; }
+.diet-vegan { color: #a3e635; }
+.diet-nonveg { color: #ef4444; }
+.macro-boxes {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.4rem;
+  margin: 0.75rem 0;
+}
+.macro-box {
+  background: var(--bg-secondary);
+  border-radius: 8px;
+  padding: 0.4rem 0.3rem;
+  text-align: center;
+}
+.macro-box .macro-val {
+  font-size: 0.92rem;
+  font-weight: 800;
+  line-height: 1;
+}
+.macro-box .macro-lbl {
+  font-size: 0.65rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  margin-top: 0.15rem;
+}
+.macro-protein .macro-val { color: var(--protein-color); }
+.macro-carbs .macro-val { color: var(--carbs-color); }
+.macro-fat .macro-val { color: var(--fat-color); }
+.macro-cal .macro-val { color: var(--cal-color); }
+.macro-bar {
+  height: 6px;
+  border-radius: 3px;
+  overflow: hidden;
+  display: flex;
+  margin: 0.5rem 0;
+}
+.macro-bar-p { background: var(--protein-color); }
+.macro-bar-c { background: var(--carbs-color); }
+.macro-bar-f { background: var(--fat-color); }
+.allergen-tags { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.5rem; }
+.allergen-tag {
+  font-size: 0.65rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 10px;
+  background: rgba(239,68,68,0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239,68,68,0.2);
+  font-weight: 600;
+}
+.results-count {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+}
+.results-count strong { color: var(--accent); }
+/* Modal */
+.modal-content {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  border-radius: 16px;
+}
+.modal-header {
+  border-bottom: 1px solid var(--border-color);
+  padding: 1.25rem 1.5rem;
+}
+.modal-title { font-weight: 800; font-size: 1.3rem; }
+.btn-close { filter: invert(1); }
+.modal-body { padding: 1.5rem; }
+.modal-footer { border-top: 1px solid var(--border-color); }
+.serving-adjuster {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 0.6rem 1rem;
+  width: fit-content;
+}
+.serving-btn {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  font-weight: 700;
+}
+.serving-btn:hover { border-color: var(--accent); color: var(--accent); }
+.serving-count { font-size: 1.1rem; font-weight: 800; min-width: 24px; text-align: center; }
+.serving-note { font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.4rem; }
+.modal-macro-boxes {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+  margin: 1rem 0;
+}
+.modal-macro-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 0.75rem;
+  text-align: center;
+}
+.modal-macro-box .macro-val { font-size: 1.2rem; font-weight: 800; }
+.modal-macro-box .macro-lbl { font-size: 0.72rem; color: var(--text-secondary); text-transform: uppercase; margin-top: 0.2rem; }
+.ingredients-section { margin-top: 1.25rem; }
+.ingredients-section h6 { font-weight: 700; margin-bottom: 0.75rem; color: var(--text-secondary); text-transform: uppercase; font-size: 0.78rem; letter-spacing: 0.5px; }
+.ingredient-list { display: flex; flex-direction: column; gap: 0.4rem; }
+.ingredient-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.4rem 0.6rem;
+  background: var(--bg-card);
+  border-radius: 8px;
+  font-size: 0.87rem;
+}
+.ingredient-qty { color: var(--accent); font-weight: 700; font-size: 0.82rem; }
+.instructions-section { margin-top: 1.25rem; }
+.instructions-section h6 { font-weight: 700; margin-bottom: 0.6rem; color: var(--text-secondary); text-transform: uppercase; font-size: 0.78rem; letter-spacing: 0.5px; }
+.instructions-text { font-size: 0.88rem; line-height: 1.6; color: var(--text-primary); }
+/* Ingredient Finder */
+.ingredient-finder { }
+.accordion-item {
+  background: var(--bg-card) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 10px !important;
+  margin-bottom: 0.5rem;
+  overflow: hidden;
+}
+.accordion-button {
+  background: var(--bg-card) !important;
+  color: var(--text-primary) !important;
+  font-weight: 700;
+  box-shadow: none !important;
+  padding: 0.85rem 1rem;
+}
+.accordion-button::after { filter: invert(1); }
+.accordion-button:not(.collapsed) { background: var(--bg-secondary) !important; }
+.accordion-body { background: var(--bg-card); padding: 0.75rem 1rem; }
+.ingredient-check-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 0.4rem;
+}
+.ingredient-check-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  padding: 0.35rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  transition: background 0.15s;
+  color: var(--text-secondary);
+}
+.ingredient-check-label:hover { background: var(--bg-secondary); color: var(--text-primary); }
+.ingredient-check-label input[type=checkbox] { accent-color: var(--accent); width: 15px; height: 15px; cursor: pointer; }
+.ingredient-check-label.checked { color: var(--text-primary); }
+.select-all-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+.select-all-label input { accent-color: var(--accent); cursor: pointer; }
+.ingredient-count-badge {
+  background: rgba(34,197,94,0.15);
+  color: var(--accent);
+  border: 1px solid rgba(34,197,94,0.3);
+  border-radius: 20px;
+  padding: 0.15rem 0.6rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+.find-btn {
+  background: var(--accent);
+  border: none;
+  color: #000;
+  font-weight: 800;
+  padding: 0.75rem 2rem;
+  border-radius: 10px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.find-btn:hover { background: #16a34a; transform: translateY(-1px); }
+.results-section-title {
+  font-size: 1rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.can-make-title { color: var(--protein-color); }
+.almost-title { color: var(--fat-color); }
+.missing-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: rgba(245,158,11,0.12);
+  border: 1px solid rgba(245,158,11,0.3);
+  color: #f59e0b;
+  border-radius: 6px;
+  padding: 0.3rem 0.6rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-top: 0.4rem;
+}
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--text-secondary);
+}
+.empty-state i { font-size: 2.5rem; margin-bottom: 0.75rem; opacity: 0.4; display: block; }
+.empty-state p { font-size: 0.95rem; }
+/* Misc */
+.section-divider {
+  border-color: var(--border-color);
+  margin: 1.5rem 0;
+}
+.main-content { padding: 1.5rem; max-width: 1400px; margin: 0 auto; }
+@media (max-width: 576px) {
+  .macro-boxes { grid-template-columns: repeat(2, 1fr); }
+  .modal-macro-boxes { grid-template-columns: repeat(2, 1fr); }
+  .mode-btn { font-size: 0.78rem; padding: 0.35rem 0.75rem; }
+  .app-logo { font-size: 1.1rem; }
+}
+.filter-divider { border-color: var(--border-color); opacity: 0.3; margin: 0.75rem 0; }
+.cuisine-north { color: #f97316; }
+.cuisine-south { color: #a78bfa; }
+.cuisine-european { color: #60a5fa; }
+.cuisine-british { color: #34d399; }
+.cuisine-healthy { color: #22c55e; }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="app-header d-flex align-items-center justify-content-between flex-wrap gap-2">
+  <div class="app-logo"><i class="bi bi-lightning-charge-fill"></i> FitMeal <span>Planner</span></div>
+  <div class="d-flex gap-2">
+    <button class="mode-btn active" id="btn-browser" onclick="setMode('browser')">
+      <i class="bi bi-grid-3x3-gap-fill"></i> Recipe Browser
+    </button>
+    <button class="mode-btn" id="btn-finder" onclick="setMode('finder')">
+      <i class="bi bi-basket3-fill"></i> What's In My Kitchen?
+    </button>
+  </div>
+</header>
+
+<div class="main-content">
+
+  <!-- Filters Toggle -->
+  <div class="d-flex align-items-center gap-3 mb-3 flex-wrap">
+    <button class="filters-toggle-btn" onclick="toggleFilters()">
+      <i class="bi bi-funnel-fill"></i> Filters
+      <i class="bi bi-chevron-down" id="filter-chevron"></i>
+    </button>
+    <span id="active-filter-note" style="font-size:0.8rem;color:var(--text-secondary);"></span>
+  </div>
+
+  <!-- Filters Panel -->
+  <div id="filters-panel" class="filters-panel" style="display:none;">
+    <div class="row g-3">
+      <!-- Sliders -->
+      <div class="col-md-4">
+        <div class="filter-section">
+          <div class="filter-label">Max Calories</div>
+          <div class="slider-row">
+            <input type="range" min="100" max="3000" value="3000" id="f-cal" oninput="updateSlider('f-cal','v-cal');applyFilters()">
+            <span class="slider-val" id="v-cal">3000</span>
+          </div>
+        </div>
+        <div class="filter-section">
+          <div class="filter-label">Min Protein (g)</div>
+          <div class="slider-row">
+            <input type="range" min="0" max="150" value="0" id="f-prot" oninput="updateSlider('f-prot','v-prot');applyFilters()">
+            <span class="slider-val" id="v-prot">0g</span>
+          </div>
+        </div>
+        <div class="filter-section">
+          <div class="filter-label">Max Cook Time (min)</div>
+          <div class="slider-row">
+            <input type="range" min="5" max="120" value="120" id="f-time" oninput="updateSlider('f-time','v-time',true);applyFilters()">
+            <span class="slider-val" id="v-time">120 min</span>
+          </div>
+        </div>
+      </div>
+      <!-- Diet -->
+      <div class="col-md-4">
+        <div class="filter-section">
+          <div class="filter-label">Diet</div>
+          <div class="toggle-group" id="diet-group">
+            <button class="toggle-btn active" data-val="all" onclick="setToggle('diet-group',this);applyFilters()">All</button>
+            <button class="toggle-btn" data-val="veg" onclick="setToggle('diet-group',this);applyFilters()">Vegetarian</button>
+            <button class="toggle-btn" data-val="vegan" onclick="setToggle('diet-group',this);applyFilters()">Vegan</button>
+            <button class="toggle-btn" data-val="nonveg" onclick="setToggle('diet-group',this);applyFilters()">Non-Veg</button>
+          </div>
+        </div>
+        <div class="filter-section mt-3">
+          <div class="filter-label">Cuisine</div>
+          <div class="toggle-group" id="cuisine-group">
+            <button class="toggle-btn active" data-val="all" onclick="setToggle('cuisine-group',this);applyFilters()">All</button>
+            <button class="toggle-btn" data-val="North Indian" onclick="setToggle('cuisine-group',this);applyFilters()">North Indian</button>
+            <button class="toggle-btn" data-val="South Indian" onclick="setToggle('cuisine-group',this);applyFilters()">South Indian</button>
+            <button class="toggle-btn" data-val="European" onclick="setToggle('cuisine-group',this);applyFilters()">European</button>
+            <button class="toggle-btn" data-val="British" onclick="setToggle('cuisine-group',this);applyFilters()">British</button>
+            <button class="toggle-btn" data-val="Healthy Fast Food" onclick="setToggle('cuisine-group',this);applyFilters()">Healthy Fast Food</button>
+          </div>
+        </div>
+      </div>
+      <!-- Allergens -->
+      <div class="col-md-4">
+        <div class="filter-section">
+          <div class="filter-label">Exclude Allergens</div>
+          <div class="toggle-group" id="allergen-group">
+            <button class="allergen-chip" data-val="gluten" onclick="toggleAllergen(this);applyFilters()">Gluten</button>
+            <button class="allergen-chip" data-val="dairy" onclick="toggleAllergen(this);applyFilters()">Dairy</button>
+            <button class="allergen-chip" data-val="eggs" onclick="toggleAllergen(this);applyFilters()">Eggs</button>
+            <button class="allergen-chip" data-val="fish" onclick="toggleAllergen(this);applyFilters()">Fish</button>
+            <button class="allergen-chip" data-val="soy" onclick="toggleAllergen(this);applyFilters()">Soy</button>
+            <button class="allergen-chip" data-val="meat" onclick="toggleAllergen(this);applyFilters()">Red Meat</button>
+            <button class="allergen-chip" data-val="poultry" onclick="toggleAllergen(this);applyFilters()">Poultry</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== RECIPE BROWSER MODE ===== -->
+  <div id="mode-browser">
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+      <div class="results-count" id="browser-count"></div>
+      <div class="d-flex align-items-center gap-2">
+        <label style="font-size:0.82rem;color:var(--text-secondary);">Sort by:</label>
+        <select class="sort-select" id="sort-select" onchange="applyFilters()">
+          <option value="protein-desc">Protein (High → Low)</option>
+          <option value="cal-asc">Calories (Low → High)</option>
+          <option value="time-asc">Time (Short → Long)</option>
+          <option value="carbs-asc">Carbs (Low → High)</option>
+          <option value="fat-asc">Fat (Low → High)</option>
+          <option value="name-asc">Name (A → Z)</option>
+        </select>
+      </div>
+    </div>
+    <div class="recipe-grid" id="recipe-grid"></div>
+    <div id="browser-empty" class="empty-state" style="display:none;">
+      <i class="bi bi-search"></i>
+      <p>No recipes match your current filters.<br>Try adjusting your criteria.</p>
+    </div>
+  </div>
+
+  <!-- ===== INGREDIENT FINDER MODE ===== -->
+  <div id="mode-finder" style="display:none;">
+    <div class="row g-4">
+      <div class="col-lg-5">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <h5 class="mb-0 fw-bold">Select Your Ingredients</h5>
+          <span class="ingredient-count-badge" id="selected-count">0 selected</span>
+        </div>
+        <div class="accordion" id="ingredientAccordion"></div>
+        <div class="mt-3">
+          <button class="find-btn" onclick="findRecipes()">
+            <i class="bi bi-search"></i> Find My Recipes
+          </button>
+        </div>
+      </div>
+      <div class="col-lg-7" id="finder-results">
+        <div class="empty-state">
+          <i class="bi bi-basket3"></i>
+          <p>Select ingredients from your kitchen and click<br><strong style="color:var(--accent)">Find My Recipes</strong> to see what you can cook!</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Recipe Modal -->
+<div class="modal fade" id="recipeModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div>
+          <h5 class="modal-title" id="modal-title"></h5>
+          <div class="d-flex gap-2 mt-1 flex-wrap" id="modal-badges"></div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <!-- Serving adjuster -->
+        <div class="mb-1">
+          <div class="serving-adjuster">
+            <button class="serving-btn" onclick="changeServing(-1)">−</button>
+            <span class="serving-count" id="modal-serving-count">4</span>
+            <span style="font-size:0.85rem;color:var(--text-secondary);">serving(s)</span>
+            <button class="serving-btn" onclick="changeServing(1)">+</button>
+          </div>
+          <div class="serving-note" id="modal-serving-note"></div>
+        </div>
+        <!-- Macro boxes -->
+        <div class="modal-macro-boxes" id="modal-macros"></div>
+        <!-- Macro bar -->
+        <div class="macro-bar mt-1" id="modal-macro-bar" style="height:8px;border-radius:4px;"></div>
+        <!-- Ingredients -->
+        <div class="ingredients-section">
+          <h6>Ingredients</h6>
+          <div class="ingredient-list" id="modal-ingredients"></div>
+        </div>
+        <!-- Instructions -->
+        <div class="instructions-section">
+          <h6>Instructions</h6>
+          <div class="instructions-text" id="modal-instructions"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <div class="allergen-tags" id="modal-allergens"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// ===== DATA =====
+const RECIPES = [
+  {"id":1,"name":"Butter Chicken","cuisine":"North Indian","ingredients":"chicken thigh:500; onion:100; tomato:200; garlic:10; ginger:10; butter:50; yogurt:50; milk:50; ghee:20","time":45,"protein":135.7,"carbs":26.2,"fat":109.6,"calories":1744.9,"baseServings":4,"instructions":"Marinate chicken with yogurt and spices. Cook onions, garlic, ginger, tomatoes with butter until soft, add marinated chicken and simmer. Finish with cream or milk."},
+  {"id":2,"name":"Palak Paneer","cuisine":"North Indian","ingredients":"spinach:300; paneer:200; onion:100; tomato:100; garlic:10; ginger:10; milk:50; ghee:15","time":30,"protein":41.2,"carbs":37.9,"fat":60.4,"calories":830.9,"baseServings":3,"instructions":"Blanch spinach and blend to a puree. Sauté onions, garlic, ginger, tomatoes in ghee, add spinach puree and spices. Add paneer cubes and simmer with milk."},
+  {"id":3,"name":"Chole","cuisine":"North Indian","ingredients":"chickpeas:250; onion:100; tomato:150; garlic:10; ginger:10; olive oil:20","time":35,"protein":25.5,"carbs":88.4,"fat":27.0,"calories":676.7,"baseServings":3,"instructions":"Cook soaked chickpeas until tender. Sauté onions, ginger, garlic, tomatoes with spices in oil. Combine chickpeas and simmer until flavors meld."},
+  {"id":4,"name":"Rajma","cuisine":"North Indian","ingredients":"kidney beans:250; onion:100; tomato:150; garlic:10; ginger:10; olive oil:20","time":40,"protein":25.0,"carbs":76.9,"fat":21.8,"calories":584.2,"baseServings":3,"instructions":"Cook soaked kidney beans until soft. Fry onions, ginger, garlic, tomatoes with spices. Add cooked beans and simmer for a thick gravy."},
+  {"id":5,"name":"Dal Makhani","cuisine":"North Indian","ingredients":"black beans:200; kidney beans:50; butter:30; milk:50; onion:100; tomato:100; ginger:10; garlic:10","time":60,"protein":26.8,"carbs":79.3,"fat":27.8,"calories":655.5,"baseServings":3,"instructions":"Cook black beans and kidney beans until tender. Sauté onions, ginger, garlic, tomatoes in butter, add cooked beans and simmer with milk for creamy texture."},
+  {"id":6,"name":"Aloo Gobi","cuisine":"North Indian","ingredients":"potato:200; cauliflower:200; onion:100; tomato:100; garlic:10; ginger:10; olive oil:20","time":30,"protein":10.6,"carbs":68.0,"fat":21.2,"calories":481.7,"baseServings":3,"instructions":"Sauté onions, garlic, ginger in oil. Add potatoes and cauliflower with spices and cook until tender, adding tomatoes towards the end."},
+  {"id":7,"name":"Chicken Biryani","cuisine":"North Indian","ingredients":"chicken thigh:500; rice:300; onion:150; tomato:200; yogurt:100; ginger:10; garlic:10; olive oil:30; ghee:20","time":60,"protein":147.4,"carbs":114.0,"fat":99.9,"calories":2060.1,"baseServings":4,"instructions":"Marinate chicken with yogurt and spices. Fry onions until golden. Layer partially cooked rice and chicken, add tomatoes and spices, and cook on low heat until done."},
+  {"id":8,"name":"Paneer Tikka Masala","cuisine":"North Indian","ingredients":"paneer:300; onion:100; tomato:200; bell pepper:100; yogurt:100; garlic:10; ginger:10; olive oil:20","time":40,"protein":56.7,"carbs":41.4,"fat":87.2,"calories":1138.7,"baseServings":3,"instructions":"Marinate paneer and bell peppers with yogurt and spices. Grill or pan-fry. Prepare a sauce with onions, tomatoes, garlic, ginger and spices; add grilled paneer and peppers."},
+  {"id":9,"name":"Kadhai Paneer","cuisine":"North Indian","ingredients":"paneer:250; onion:100; bell pepper:150; tomato:200; garlic:10; ginger:10; olive oil:20","time":30,"protein":40.2,"carbs":39.1,"fat":73.6,"calories":964.7,"baseServings":3,"instructions":"Sauté onions, ginger, garlic. Add bell peppers and tomatoes with spices and cook until soft. Add paneer cubes and simmer briefly."},
+  {"id":10,"name":"Aloo Paratha","cuisine":"North Indian","ingredients":"wheat flour:200; potato:250; onion:50; ghee:20","time":40,"protein":31.6,"carbs":198.5,"fat":23.3,"calories":1097.5,"baseServings":4,"instructions":"Make dough from wheat flour. Prepare spiced mashed potato filling with onions. Stuff and roll out parathas, then cook on a griddle with ghee."},
+  {"id":11,"name":"Masala Dosa","cuisine":"South Indian","ingredients":"rice:200; lentils:50; potato:200; onion:100; olive oil:20","time":60,"protein":15.0,"carbs":115.0,"fat":21.1,"calories":708.8,"baseServings":4,"instructions":"Ferment rice and lentils batter overnight. Prepare spiced potato filling. Spread batter on a griddle, cook until crisp, fill with potato masala."},
+  {"id":12,"name":"Idli with Sambar","cuisine":"South Indian","ingredients":"rice:200; lentils:100; pumpkin:100; carrot:100; onion:100; olive oil:15","time":90,"protein":21.9,"carbs":112.0,"fat":16.6,"calories":675.6,"baseServings":4,"instructions":"Ferment rice and lentils to make idli batter. Steam idli cakes. Cook lentils with vegetables and spices to make sambar."},
+  {"id":13,"name":"Rasam","cuisine":"South Indian","ingredients":"tomato:200; lentils:50; garlic:10; ginger:10; olive oil:10","time":30,"protein":7.1,"carbs":22.9,"fat":10.7,"calories":205.3,"baseServings":3,"instructions":"Simmer tomatoes, lentils and spices with tamarind water to make a tangy broth. Finish with tempered spices."},
+  {"id":14,"name":"Chicken 65","cuisine":"South Indian","ingredients":"chicken thigh:400; yogurt:50; olive oil:30","time":30,"protein":105.0,"carbs":1.8,"fat":67.6,"calories":1131.7,"baseServings":3,"instructions":"Marinate chicken pieces with yogurt and spices. Deep-fry or pan-fry until crisp, toss with curry leaves and chilies."},
+  {"id":15,"name":"Vegetable Upma","cuisine":"South Indian","ingredients":"wheat flour:200; green peas:50; carrot:50; onion:50; olive oil:20","time":20,"protein":29.5,"carbs":160.5,"fat":23.4,"calories":937.8,"baseServings":3,"instructions":"Roast semolina (represented by wheat flour). Sauté onions and vegetables with mustard seeds. Add water and semolina, cook until fluffy."},
+  {"id":16,"name":"Spaghetti Bolognese","cuisine":"European","ingredients":"pasta:300; beef:400; tomato:300; onion:100; garlic:10; olive oil:20; carrot:100","time":45,"protein":125.8,"carbs":109.0,"fat":84.0,"calories":1719.7,"baseServings":4,"instructions":"Brown beef in olive oil, add onions, garlic, carrots and tomatoes, simmer into a thick sauce. Serve over cooked spaghetti."},
+  {"id":17,"name":"Margherita Pizza","cuisine":"European","ingredients":"flour:300; tomato:200; cheese:200; olive oil:10","time":30,"protein":81.8,"carbs":238.4,"fat":79.4,"calories":2020.4,"baseServings":4,"instructions":"Prepare dough from flour and yeast. Spread tomato sauce, add cheese and bake until crust is crisp and cheese melts."},
+  {"id":18,"name":"Ratatouille","cuisine":"European","ingredients":"eggplant:200; ridge gourd:200; bell pepper:200; tomato:200; onion:100; olive oil:30","time":40,"protein":8.9,"carbs":49.4,"fat":31.7,"calories":499.2,"baseServings":3,"instructions":"Sauté all vegetables in olive oil with herbs until tender. Layer and bake if desired."},
+  {"id":19,"name":"Paella","cuisine":"European","ingredients":"rice:300; chicken thigh:300; cod:200; green peas:100; bell pepper:100; olive oil:20; tomato:100","time":45,"protein":126.0,"carbs":107.9,"fat":50.8,"calories":1487.8,"baseServings":4,"instructions":"Sauté meats and vegetables in olive oil, add rice, tomatoes and stock, cook until rice is tender and liquid absorbed."},
+  {"id":20,"name":"Greek Salad","cuisine":"European","ingredients":"tomato:200; ridge gourd:200; onion:50; cheese:100; olive oil:20","time":10,"protein":29.8,"carbs":17.6,"fat":53.6,"calories":660.8,"baseServings":2,"instructions":"Combine chopped vegetables with feta cheese and olives, dress with olive oil and herbs."},
+  {"id":21,"name":"French Omelette","cuisine":"European","ingredients":"egg:200; butter:10; milk:20","time":10,"protein":24.7,"carbs":3.2,"fat":28.8,"calories":394.5,"baseServings":1,"instructions":"Whisk eggs with milk, cook gently in butter until just set. Fold and serve."},
+  {"id":22,"name":"Crepes","cuisine":"European","ingredients":"flour:150; milk:200; egg:100; butter:20","time":20,"protein":33.9,"carbs":125.1,"fat":34.9,"calories":972.4,"baseServings":4,"instructions":"Blend batter of flour, milk, eggs. Cook thin crepes on a greased pan, flipping once."},
+  {"id":23,"name":"Pasta Alfredo","cuisine":"European","ingredients":"pasta:300; butter:30; milk:100; cheese:100; garlic:10","time":20,"protein":45.7,"carbs":84.6,"fat":64.0,"calories":1089.0,"baseServings":3,"instructions":"Cook pasta. Prepare sauce by melting butter, adding garlic, milk and cheese until creamy. Toss pasta in sauce."},
+  {"id":24,"name":"Chicken Carbonara","cuisine":"European","ingredients":"pasta:300; chicken thigh:300; egg:100; cheese:50; garlic:10","time":25,"protein":116.6,"carbs":80.0,"fat":56.6,"calories":1390.9,"baseServings":3,"instructions":"Cook pasta and sauté chicken. Mix eggs and cheese. Toss hot pasta with chicken and egg mixture, allowing heat to create a creamy sauce."},
+  {"id":25,"name":"Fish and Chips","cuisine":"British","ingredients":"cod:300; potato:300; flour:50; egg:50; olive oil:50","time":30,"protein":71.0,"carbs":98.6,"fat":58.8,"calories":1208.5,"baseServings":2,"instructions":"Coat fish in batter made from flour and egg, then deep-fry. Serve with fried potato chips."},
+  {"id":26,"name":"Shepherd's Pie","cuisine":"British","ingredients":"lamb:300; potato:400; onion:100; carrot:100; green peas:50; butter:30","time":50,"protein":87.6,"carbs":106.0,"fat":88.2,"calories":1566.6,"baseServings":4,"instructions":"Cook minced lamb with onions, carrots and peas in gravy. Top with mashed potatoes and bake until golden."},
+  {"id":27,"name":"Bangers and Mash","cuisine":"British","ingredients":"pork:300; potato:400; butter:30; milk:50; onion:100","time":30,"protein":92.0,"carbs":91.5,"fat":50.6,"calories":1298.1,"baseServings":3,"instructions":"Cook sausages until browned. Make mashed potatoes with milk and butter. Serve sausages over mash with onion gravy."},
+  {"id":28,"name":"Beans on Toast","cuisine":"British","ingredients":"kidney beans:200; bread:100; butter:10","time":10,"protein":26.2,"carbs":94.6,"fat":12.4,"calories":590.7,"baseServings":2,"instructions":"Heat beans in a sauce. Toast bread, butter it and top with warm beans."},
+  {"id":29,"name":"Full English Breakfast","cuisine":"British","ingredients":"egg:200; pork:250; eggplant:100; kidney beans:100; tomato:100; bread:100; butter:10","time":20,"protein":110.6,"carbs":86.2,"fat":52.3,"calories":1379.2,"baseServings":2,"instructions":"Fry eggs, sausages and bacon (pork) with mushrooms (eggplant) and tomatoes. Serve with beans and toast."},
+  {"id":30,"name":"Ploughman's Lunch","cuisine":"British","ingredients":"bread:100; cheese:100; onion:50; butter:10","time":5,"protein":34.3,"carbs":54.8,"fat":44.4,"calories":758.7,"baseServings":2,"instructions":"Serve slices of bread with cheese, butter and pickled onions."},
+  {"id":31,"name":"Steak and Kidney Pie","cuisine":"British","ingredients":"beef:500; flour:200; onion:100; butter:30","time":60,"protein":151.2,"carbs":161.0,"fat":101.4,"calories":2233.1,"baseServings":4,"instructions":"Cook beef with onions into a rich filling. Make pastry from flour and butter, fill with meat mixture and bake."},
+  {"id":32,"name":"Macaroni Cheese","cuisine":"British","ingredients":"pasta:300; cheese:200; milk:200; butter:30","time":25,"protein":73.4,"carbs":87.6,"fat":100.5,"calories":1540.1,"baseServings":3,"instructions":"Cook pasta. Prepare cheese sauce with butter, milk and cheese, mix with pasta and bake until bubbly."},
+  {"id":33,"name":"Quinoa Salad","cuisine":"Healthy Fast Food","ingredients":"quinoa:200; tomato:100; ridge gourd:100; bell pepper:100; olive oil:20","time":15,"protein":11.9,"carbs":54.5,"fat":24.4,"calories":478.8,"baseServings":2,"instructions":"Cook quinoa and let cool. Toss with chopped vegetables and olive oil dressing."},
+  {"id":34,"name":"Grilled Chicken Salad","cuisine":"Healthy Fast Food","ingredients":"chicken breast:200; cabbage:100; tomato:100; ridge gourd:100; olive oil:20","time":15,"protein":65.4,"carbs":11.9,"fat":27.6,"calories":562.8,"baseServings":2,"instructions":"Grill chicken until cooked through. Combine with chopped vegetables and drizzle with olive oil."},
+  {"id":35,"name":"Veg Wrap","cuisine":"Healthy Fast Food","ingredients":"flour:100; chickpeas:50; olive oil:10; tomato:50; ridge gourd:50; cabbage:50; cheese:20","time":15,"protein":21.2,"carbs":95.9,"fat":19.1,"calories":642.8,"baseServings":2,"instructions":"Prepare a flatbread, spread hummus (mashed chickpeas) and layer with vegetables and cheese. Roll up and serve."},
+  {"id":36,"name":"Chickpea Salad","cuisine":"Healthy Fast Food","ingredients":"chickpeas:200; ridge gourd:100; tomato:100; onion:50; olive oil:20","time":10,"protein":20.4,"carbs":65.2,"fat":25.6,"calories":555.8,"baseServings":2,"instructions":"Combine cooked chickpeas with chopped vegetables, season and drizzle with olive oil."},
+  {"id":37,"name":"Grilled Salmon with Veggies","cuisine":"Healthy Fast Food","ingredients":"salmon:200; cauliflower:100; bell pepper:50; olive oil:20","time":15,"protein":42.4,"carbs":8.0,"fat":46.4,"calories":629.3,"baseServings":2,"instructions":"Season salmon and vegetables, grill until cooked. Serve together."},
+  {"id":38,"name":"Sweet Potato Fries","cuisine":"Healthy Fast Food","ingredients":"sweet potato:300; olive oil:20","time":20,"protein":4.8,"carbs":60.0,"fat":20.3,"calories":434.8,"baseServings":2,"instructions":"Slice sweet potatoes, toss with oil and bake or air fry until crisp."},
+  {"id":39,"name":"Burrito Bowl","cuisine":"Healthy Fast Food","ingredients":"rice:200; chicken breast:200; black beans:100; sweet corn:50; cabbage:100; tomato:100; cheese:50; olive oil:20","time":30,"protein":92.7,"carbs":100.8,"fat":45.7,"calories":1192.3,"baseServings":3,"instructions":"Assemble bowls with cooked rice, grilled chicken, beans, corn, chopped vegetables and cheese. Drizzle with oil or dressing."}
+];
+
+const INGREDIENTS_DATA = [
+  {"ingredient":"spinach","category":"Vegetables"},{"ingredient":"fenugreek leaves","category":"Vegetables"},{"ingredient":"amaranth leaves","category":"Vegetables"},{"ingredient":"mustard leaves","category":"Vegetables"},{"ingredient":"potato","category":"Vegetables"},{"ingredient":"sweet potato","category":"Vegetables"},{"ingredient":"carrot","category":"Vegetables"},{"ingredient":"radish","category":"Vegetables"},{"ingredient":"beetroot","category":"Vegetables"},{"ingredient":"taro root","category":"Vegetables"},{"ingredient":"turnip","category":"Vegetables"},{"ingredient":"tomato","category":"Vegetables"},{"ingredient":"bell pepper","category":"Vegetables"},{"ingredient":"okra","category":"Vegetables"},{"ingredient":"eggplant","category":"Vegetables"},{"ingredient":"cauliflower","category":"Vegetables"},{"ingredient":"cabbage","category":"Vegetables"},{"ingredient":"green peas","category":"Vegetables"},{"ingredient":"green beans","category":"Vegetables"},{"ingredient":"sweet corn","category":"Vegetables"},{"ingredient":"pumpkin","category":"Vegetables"},{"ingredient":"bottle gourd","category":"Vegetables"},{"ingredient":"bitter gourd","category":"Vegetables"},{"ingredient":"ridge gourd","category":"Vegetables"},{"ingredient":"snake gourd","category":"Vegetables"},{"ingredient":"paneer","category":"Dairy & Eggs"},{"ingredient":"milk","category":"Dairy & Eggs"},{"ingredient":"yogurt","category":"Dairy & Eggs"},{"ingredient":"cheese","category":"Dairy & Eggs"},{"ingredient":"egg","category":"Dairy & Eggs"},{"ingredient":"flour","category":"Grains"},{"ingredient":"wheat flour","category":"Grains"},{"ingredient":"rice","category":"Grains"},{"ingredient":"brown rice","category":"Grains"},{"ingredient":"quinoa","category":"Grains"},{"ingredient":"oats","category":"Grains"},{"ingredient":"pasta","category":"Grains"},{"ingredient":"bread","category":"Grains"},{"ingredient":"chicken breast","category":"Proteins"},{"ingredient":"chicken thigh","category":"Proteins"},{"ingredient":"beef","category":"Proteins"},{"ingredient":"lamb","category":"Proteins"},{"ingredient":"pork","category":"Proteins"},{"ingredient":"cod","category":"Proteins"},{"ingredient":"salmon","category":"Proteins"},{"ingredient":"tofu","category":"Proteins"},{"ingredient":"chickpeas","category":"Pulses"},{"ingredient":"kidney beans","category":"Pulses"},{"ingredient":"lentils","category":"Pulses"},{"ingredient":"black beans","category":"Pulses"},{"ingredient":"peas","category":"Pulses"}
+];
+
+const STAPLES = new Set(['garlic','ginger','salt','olive oil','butter','ghee','onion','spices']);
+
+const ALLERGEN_INGREDIENTS = {
+  gluten: ['flour','wheat flour','pasta','bread','oats'],
+  dairy: ['milk','butter','cheese','yogurt','ghee','paneer'],
+  eggs: ['egg'],
+  fish: ['cod','salmon'],
+  soy: ['tofu'],
+  meat: ['beef','lamb','pork'],
+  poultry: ['chicken breast','chicken thigh']
+};
+
+// State
+let currentMode = 'browser';
+let filtersVisible = false;
+let currentRecipe = null;
+let currentServings = 1;
+let selectedIngredients = new Set();
+
+// ===== HELPERS =====
+function parseIngredients(str) {
+  return str.split(';').map(part => {
+    const [name, qty] = part.split(':');
+    return { name: name.trim().toLowerCase(), qty: parseFloat(qty) || 0 };
+  });
+}
+
+function getRecipeAllergens(recipe) {
+  const ings = parseIngredients(recipe.ingredients).map(i => i.name);
+  const found = [];
+  for (const [allergen, items] of Object.entries(ALLERGEN_INGREDIENTS)) {
+    if (items.some(item => ings.includes(item))) {
+      found.push(allergen);
+    }
+  }
+  return found;
+}
+
+function getDietType(recipe) {
+  const allergens = getRecipeAllergens(recipe);
+  if (allergens.includes('meat') || allergens.includes('poultry') || allergens.includes('fish')) return 'nonveg';
+  if (allergens.includes('dairy') || allergens.includes('eggs')) return 'veg';
+  return 'vegan';
+}
+
+function getDifficulty(time) {
+  if (time <= 20) return 'Easy';
+  if (time <= 45) return 'Medium';
+  return 'Hard';
+}
+
+function getPerServing(recipe) {
+  return {
+    protein: recipe.protein / recipe.baseServings,
+    carbs: recipe.carbs / recipe.baseServings,
+    fat: recipe.fat / recipe.baseServings,
+    calories: recipe.calories / recipe.baseServings
+  };
+}
+
+function getMacroBarWidths(protein, carbs, fat) {
+  const pCal = protein * 4;
+  const cCal = carbs * 4;
+  const fCal = fat * 9;
+  const total = pCal + cCal + fCal || 1;
+  return {
+    p: (pCal / total * 100).toFixed(1),
+    c: (cCal / total * 100).toFixed(1),
+    f: (fCal / total * 100).toFixed(1)
+  };
+}
+
+function allergenLabel(key) {
+  const labels = { gluten:'Gluten', dairy:'Dairy', eggs:'Eggs', fish:'Fish', soy:'Soy', meat:'Red Meat', poultry:'Poultry' };
+  return labels[key] || key;
+}
+
+function cuisineBadgeColor(cuisine) {
+  const map = {
+    'North Indian': '#f97316',
+    'South Indian': '#a78bfa',
+    'European': '#60a5fa',
+    'British': '#34d399',
+    'Healthy Fast Food': '#22c55e'
+  };
+  return map[cuisine] || '#8b949e';
+}
+
+// ===== FILTERS =====
+function getFilterValues() {
+  return {
+    maxCal: parseInt(document.getElementById('f-cal').value),
+    minProt: parseInt(document.getElementById('f-prot').value),
+    maxTime: parseInt(document.getElementById('f-time').value),
+    diet: document.querySelector('#diet-group .toggle-btn.active')?.dataset.val || 'all',
+    cuisine: document.querySelector('#cuisine-group .toggle-btn.active')?.dataset.val || 'all',
+    excludeAllergens: [...document.querySelectorAll('#allergen-group .allergen-chip.active')].map(el => el.dataset.val)
+  };
+}
+
+function filterRecipes(recipes) {
+  const f = getFilterValues();
+  return recipes.filter(r => {
+    const ps = r.protein / r.baseServings;
+    const cs = r.calories / r.baseServings;
+    if (cs > f.maxCal) return false;
+    if (ps < f.minProt) return false;
+    if (r.time > f.maxTime) return false;
+    if (f.diet !== 'all' && getDietType(r) !== f.diet) return false;
+    if (f.cuisine !== 'all' && r.cuisine !== f.cuisine) return false;
+    if (f.excludeAllergens.length > 0) {
+      const ra = getRecipeAllergens(r);
+      if (f.excludeAllergens.some(a => ra.includes(a))) return false;
+    }
+    return true;
+  });
+}
+
+function sortRecipes(recipes) {
+  const sort = document.getElementById('sort-select')?.value || 'protein-desc';
+  const sorted = [...recipes];
+  switch (sort) {
+    case 'protein-desc': sorted.sort((a,b) => (b.protein/b.baseServings) - (a.protein/a.baseServings)); break;
+    case 'cal-asc': sorted.sort((a,b) => (a.calories/a.baseServings) - (b.calories/b.baseServings)); break;
+    case 'time-asc': sorted.sort((a,b) => a.time - b.time); break;
+    case 'carbs-asc': sorted.sort((a,b) => (a.carbs/a.baseServings) - (b.carbs/b.baseServings)); break;
+    case 'fat-asc': sorted.sort((a,b) => (a.fat/a.baseServings) - (b.fat/b.baseServings)); break;
+    case 'name-asc': sorted.sort((a,b) => a.name.localeCompare(b.name)); break;
+  }
+  return sorted;
+}
+
+function applyFilters() {
+  if (currentMode === 'browser') renderBrowser();
+}
+
+function updateSlider(sliderId, valId, isTime) {
+  const val = document.getElementById(sliderId).value;
+  const el = document.getElementById(valId);
+  if (isTime) el.textContent = val + ' min';
+  else if (sliderId === 'f-prot') el.textContent = val + 'g';
+  else el.textContent = val;
+}
+
+function setToggle(groupId, btn) {
+  document.querySelectorAll('#' + groupId + ' .toggle-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function toggleAllergen(btn) {
+  btn.classList.toggle('active');
+}
+
+function toggleFilters() {
+  filtersVisible = !filtersVisible;
+  document.getElementById('filters-panel').style.display = filtersVisible ? 'block' : 'none';
+  const chevron = document.getElementById('filter-chevron');
+  chevron.className = filtersVisible ? 'bi bi-chevron-up' : 'bi bi-chevron-down';
+}
+
+// ===== RECIPE CARD =====
+function renderRecipeCard(recipe) {
+  const ps = getPerServing(recipe);
+  const diff = getDifficulty(recipe.time);
+  const diet = getDietType(recipe);
+  const allergens = getRecipeAllergens(recipe);
+  const bar = getMacroBarWidths(ps.protein, ps.carbs, ps.fat);
+  const diffClass = diff === 'Easy' ? 'badge-easy' : diff === 'Medium' ? 'badge-medium' : 'badge-hard';
+  const dietClass = diet === 'veg' ? 'diet-veg' : diet === 'vegan' ? 'diet-vegan' : 'diet-nonveg';
+  const dietLabel = diet === 'veg' ? 'Veg' : diet === 'vegan' ? 'Vegan' : 'Non-Veg';
+  const dietIcon = diet === 'veg' ? 'bi-circle-fill' : diet === 'vegan' ? 'bi-leaf-fill' : 'bi-droplet-fill';
+  const cColor = cuisineBadgeColor(recipe.cuisine);
+
+  const allergenHTML = allergens.map(a => `<span class="allergen-tag">${allergenLabel(a)}</span>`).join('');
+
+  return `
+  <div class="recipe-card" onclick="openModal(${recipe.id})">
+    <div class="recipe-name">${recipe.name}</div>
+    <div class="d-flex gap-1 flex-wrap mb-1">
+      <span class="badge-cuisine" style="background:rgba(${hexToRgb(cColor)},0.12);color:${cColor};border:1px solid rgba(${hexToRgb(cColor)},0.3);">${recipe.cuisine}</span>
+      <span class="badge-difficulty ${diffClass}">${diff}</span>
+    </div>
+    <div class="meta-row">
+      <span><i class="bi bi-clock"></i> ${recipe.time} min</span>
+      <span class="diet-tag ${dietClass}"><i class="bi ${dietIcon}"></i> ${dietLabel}</span>
+    </div>
+    <div class="macro-boxes">
+      <div class="macro-box macro-protein">
+        <div class="macro-val">${ps.protein.toFixed(1)}g</div>
+        <div class="macro-lbl">Protein</div>
+      </div>
+      <div class="macro-box macro-carbs">
+        <div class="macro-val">${ps.carbs.toFixed(1)}g</div>
+        <div class="macro-lbl">Carbs</div>
+      </div>
+      <div class="macro-box macro-fat">
+        <div class="macro-val">${ps.fat.toFixed(1)}g</div>
+        <div class="macro-lbl">Fat</div>
+      </div>
+      <div class="macro-box macro-cal">
+        <div class="macro-val">${Math.round(ps.calories)}</div>
+        <div class="macro-lbl">kcal</div>
+      </div>
+    </div>
+    <div class="macro-bar">
+      <div class="macro-bar-p" style="width:${bar.p}%"></div>
+      <div class="macro-bar-c" style="width:${bar.c}%"></div>
+      <div class="macro-bar-f" style="width:${bar.f}%"></div>
+    </div>
+    ${allergenHTML ? `<div class="allergen-tags">${allergenHTML}</div>` : ''}
+  </div>`;
+}
+
+function hexToRgb(hex) {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result ? `${parseInt(result[1],16)},${parseInt(result[2],16)},${parseInt(result[3],16)}` : '139,148,158';
+}
+
+// ===== BROWSER MODE =====
+function renderBrowser() {
+  const filtered = sortRecipes(filterRecipes(RECIPES));
+  const grid = document.getElementById('recipe-grid');
+  const empty = document.getElementById('browser-empty');
+  const count = document.getElementById('browser-count');
+
+  if (filtered.length === 0) {
+    grid.innerHTML = '';
+    empty.style.display = 'block';
+    count.innerHTML = '<strong>0</strong> recipes found';
+  } else {
+    empty.style.display = 'none';
+    grid.innerHTML = filtered.map(renderRecipeCard).join('');
+    count.innerHTML = `<strong>${filtered.length}</strong> recipe${filtered.length !== 1 ? 's' : ''} found`;
+  }
+}
+
+// ===== MODAL =====
+function openModal(id) {
+  currentRecipe = RECIPES.find(r => r.id === id);
+  currentServings = currentRecipe.baseServings;
+  updateModal();
+  new bootstrap.Modal(document.getElementById('recipeModal')).show();
+}
+
+function changeServing(delta) {
+  currentServings = Math.max(1, Math.min(20, currentServings + delta));
+  updateModal();
+}
+
+function updateModal() {
+  const r = currentRecipe;
+  const ps = r.protein / r.baseServings;
+  const cs = r.carbs / r.baseServings;
+  const fs = r.fat / r.baseServings;
+  const cals = r.calories / r.baseServings;
+
+  document.getElementById('modal-title').textContent = r.name;
+  document.getElementById('modal-serving-count').textContent = currentServings;
+  document.getElementById('modal-serving-note').textContent =
+    `Showing macros per serving (total ÷ ${currentServings})`;
+
+  const diff = getDifficulty(r.time);
+  const diffClass = diff === 'Easy' ? 'badge-easy' : diff === 'Medium' ? 'badge-medium' : 'badge-hard';
+  const cColor = cuisineBadgeColor(r.cuisine);
+  document.getElementById('modal-badges').innerHTML = `
+    <span class="badge-cuisine" style="background:rgba(${hexToRgb(cColor)},0.12);color:${cColor};border:1px solid rgba(${hexToRgb(cColor)},0.3);">${r.cuisine}</span>
+    <span class="badge-difficulty ${diffClass}">${diff}</span>
+    <span style="font-size:0.75rem;color:var(--text-secondary);"><i class="bi bi-clock"></i> ${r.time} min</span>
+  `;
+
+  document.getElementById('modal-macros').innerHTML = `
+    <div class="modal-macro-box macro-protein">
+      <div class="macro-val">${ps.toFixed(1)}g</div>
+      <div class="macro-lbl">Protein</div>
+    </div>
+    <div class="modal-macro-box macro-carbs">
+      <div class="macro-val">${cs.toFixed(1)}g</div>
+      <div class="macro-lbl">Carbs</div>
+    </div>
+    <div class="modal-macro-box macro-fat">
+      <div class="macro-val">${fs.toFixed(1)}g</div>
+      <div class="macro-lbl">Fat</div>
+    </div>
+    <div class="modal-macro-box macro-cal">
+      <div class="macro-val">${Math.round(cals)}</div>
+      <div class="macro-lbl">kcal</div>
+    </div>
+  `;
+
+  const bar = getMacroBarWidths(ps, cs, fs);
+  document.getElementById('modal-macro-bar').innerHTML = `
+    <div class="macro-bar-p" style="width:${bar.p}%"></div>
+    <div class="macro-bar-c" style="width:${bar.c}%"></div>
+    <div class="macro-bar-f" style="width:${bar.f}%"></div>
+  `;
+
+  const ings = parseIngredients(r.ingredients);
+  document.getElementById('modal-ingredients').innerHTML = ings.map(ing => {
+    const scaledQty = (ing.qty * currentServings / r.baseServings).toFixed(1);
+    return `<div class="ingredient-item">
+      <span style="text-transform:capitalize;">${ing.name}</span>
+      <span class="ingredient-qty">${scaledQty}g</span>
+    </div>`;
+  }).join('');
+
+  document.getElementById('modal-instructions').textContent = r.instructions;
+
+  const allergens = getRecipeAllergens(r);
+  document.getElementById('modal-allergens').innerHTML = allergens.length
+    ? allergens.map(a => `<span class="allergen-tag">${allergenLabel(a)}</span>`).join('')
+    : '<span style="font-size:0.8rem;color:var(--text-secondary);">No common allergens</span>';
+}
+
+// ===== INGREDIENT FINDER =====
+function buildAccordion() {
+  const categories = {};
+  INGREDIENTS_DATA.forEach(item => {
+    if (!categories[item.category]) categories[item.category] = [];
+    categories[item.category].push(item.ingredient);
+  });
+
+  const catIcons = {
+    'Vegetables': 'bi-flower1',
+    'Dairy & Eggs': 'bi-egg-fried',
+    'Grains': 'bi-grid',
+    'Proteins': 'bi-lightning',
+    'Pulses': 'bi-circle'
+  };
+
+  const accordion = document.getElementById('ingredientAccordion');
+  let html = '';
+  let idx = 0;
+  for (const [cat, items] of Object.entries(categories)) {
+    const collapseId = `collapse-${idx}`;
+    const headId = `head-${idx}`;
+    const icon = catIcons[cat] || 'bi-list';
+    html += `
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="${headId}">
+        <button class="accordion-button ${idx > 0 ? 'collapsed' : ''}" type="button"
+          data-bs-toggle="collapse" data-bs-target="#${collapseId}">
+          <div class="d-flex align-items-center justify-content-between w-100 pe-3">
+            <span><i class="bi ${icon} me-2"></i>${cat}</span>
+            <div class="d-flex align-items-center gap-2">
+              <label class="select-all-label" onclick="event.stopPropagation()">
+                <input type="checkbox" onchange="selectAllCategory('${cat}', this.checked)" id="all-${idx}">
+                Select all
+              </label>
+              <span class="ingredient-count-badge" id="cat-count-${cat.replace(/\s|&/g,'')}">${0}</span>
+            </div>
+          </div>
+        </button>
+      </h2>
+      <div id="${collapseId}" class="accordion-collapse collapse ${idx === 0 ? 'show' : ''}" data-bs-parent="#ingredientAccordion">
+        <div class="accordion-body">
+          <div class="ingredient-check-grid">
+            ${items.map(ing => `
+            <label class="ingredient-check-label" id="label-${ing.replace(/\s/g,'-')}">
+              <input type="checkbox" value="${ing}" onchange="toggleIngredient('${ing}','${cat}',this.checked)">
+              ${ing}
+            </label>`).join('')}
+          </div>
+        </div>
+      </div>
+    </div>`;
+    idx++;
+  }
+  accordion.innerHTML = html;
+}
+
+function toggleIngredient(ing, cat, checked) {
+  if (checked) selectedIngredients.add(ing);
+  else selectedIngredients.delete(ing);
+
+  const label = document.getElementById('label-' + ing.replace(/\s/g,'-'));
+  if (label) label.classList.toggle('checked', checked);
+
+  updateSelectedCount();
+  updateCategoryCount(cat);
+}
+
+function selectAllCategory(cat, checked) {
+  INGREDIENTS_DATA.filter(i => i.category === cat).forEach(item => {
+    const checkbox = document.querySelector(`input[value="${item.ingredient}"]`);
+    if (checkbox) {
+      checkbox.checked = checked;
+      const label = document.getElementById('label-' + item.ingredient.replace(/\s/g,'-'));
+      if (label) label.classList.toggle('checked', checked);
+      if (checked) selectedIngredients.add(item.ingredient);
+      else selectedIngredients.delete(item.ingredient);
+    }
+  });
+  updateSelectedCount();
+  updateCategoryCount(cat);
+}
+
+function updateSelectedCount() {
+  document.getElementById('selected-count').textContent = `${selectedIngredients.size} selected`;
+}
+
+function updateCategoryCount(cat) {
+  const catItems = INGREDIENTS_DATA.filter(i => i.category === cat).map(i => i.ingredient);
+  const count = catItems.filter(i => selectedIngredients.has(i)).length;
+  const el = document.getElementById('cat-count-' + cat.replace(/\s|&/g,''));
+  if (el) el.textContent = count;
+}
+
+function getRequiredNonStaples(recipe) {
+  return parseIngredients(recipe.ingredients)
+    .map(i => i.name)
+    .filter(n => !STAPLES.has(n));
+}
+
+function findRecipes() {
+  const filtered = filterRecipes(RECIPES);
+  const canMake = [];
+  const almostThere = [];
+
+  filtered.forEach(recipe => {
+    const required = getRequiredNonStaples(recipe);
+    const missing = required.filter(r => !selectedIngredients.has(r));
+
+    if (missing.length === 0) {
+      canMake.push({ recipe, missing: [] });
+    } else if (missing.length <= 2) {
+      almostThere.push({ recipe, missing });
+    }
+  });
+
+  renderFinderResults(canMake, almostThere);
+  document.getElementById('finder-results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function renderFinderResults(canMake, almostThere) {
+  const container = document.getElementById('finder-results');
+
+  let html = '';
+
+  // Can Make Now
+  html += `<div class="results-section-title can-make-title">
+    <i class="bi bi-check-circle-fill"></i> Can Make Now
+    <span class="ingredient-count-badge">${canMake.length}</span>
+  </div>`;
+
+  if (canMake.length === 0) {
+    html += `<div class="empty-state" style="padding:1.5rem;">
+      <i class="bi bi-emoji-frown" style="font-size:1.5rem;"></i>
+      <p style="font-size:0.85rem;">No recipes match with your current ingredients and filters.</p>
+    </div>`;
+  } else {
+    html += `<div class="recipe-grid mb-4">${canMake.map(({recipe}) => renderRecipeCard(recipe)).join('')}</div>`;
+  }
+
+  html += `<hr class="section-divider">`;
+
+  // Almost There
+  html += `<div class="results-section-title almost-title">
+    <i class="bi bi-exclamation-circle-fill"></i> Almost There — 1–2 Ingredients Away
+    <span class="ingredient-count-badge" style="background:rgba(245,158,11,0.12);color:#f59e0b;border-color:rgba(245,158,11,0.3);">${almostThere.length}</span>
+  </div>`;
+
+  if (almostThere.length === 0) {
+    html += `<div class="empty-state" style="padding:1.5rem;">
+      <i class="bi bi-basket" style="font-size:1.5rem;"></i>
+      <p style="font-size:0.85rem;">No near-matches found either. Try selecting more ingredients!</p>
+    </div>`;
+  } else {
+    html += `<div class="recipe-grid">`;
+    almostThere.forEach(({recipe, missing}) => {
+      const missingBadges = missing.map(m => `<span class="missing-badge"><i class="bi bi-plus-circle"></i> ${m}</span>`).join('');
+      html += `
+      <div>
+        ${renderRecipeCard(recipe)}
+        <div class="d-flex flex-wrap gap-1 mt-1 ps-1">${missingBadges}</div>
+      </div>`;
+    });
+    html += `</div>`;
+  }
+
+  container.innerHTML = html;
+}
+
+// ===== MODE SWITCHING =====
+function setMode(mode) {
+  currentMode = mode;
+  document.getElementById('mode-browser').style.display = mode === 'browser' ? 'block' : 'none';
+  document.getElementById('mode-finder').style.display = mode === 'finder' ? 'block' : 'none';
+  document.getElementById('btn-browser').classList.toggle('active', mode === 'browser');
+  document.getElementById('btn-finder').classList.toggle('active', mode === 'finder');
+
+  if (mode === 'browser') renderBrowser();
+}
+
+// ===== INIT =====
+function init() {
+  buildAccordion();
+  renderBrowser();
+}
+
+init();
+</script>
+</body>
+</html>

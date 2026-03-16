@@ -1,0 +1,31 @@
+# Dependencies
+node_modules/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Xcode build artifacts
+ios/App/build/
+ios/App/DerivedData/
+ios/App/*.xcworkspace/xcuserdata/
+ios/App/*.xcodeproj/xcuserdata/
+ios/App/Pods/
+
+# Capacitor generated (synced from www/)
+# NOTE: ios/ Xcode project IS committed — it's the native shell
+# Only exclude large build outputs
+
+# Environment / secrets
+*.p12
+*.mobileprovision
+.env
+.env.*
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo

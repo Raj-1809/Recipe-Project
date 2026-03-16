@@ -1,0 +1,30 @@
+{
+  "name": "fitmeal-planner",
+  "version": "1.0.0",
+  "description": "Fitness meal planner app — browse recipes, find what to cook with what you have",
+  "scripts": {
+    "build": "echo 'Static HTML — no build step needed'",
+    "generate:icons": "node scripts/generate-icons.js",
+    "cap:sync": "npm run build && npx cap sync",
+    "cap:open:ios": "npx cap open ios",
+    "serve": "npx serve www -p 3000"
+  },
+  "keywords": [
+    "fitness",
+    "meal-planner",
+    "nutrition",
+    "recipes"
+  ],
+  "author": "Raj",
+  "license": "MIT",
+  "dependencies": {
+    "@capacitor/cli": "^8.2.0",
+    "@capacitor/core": "^8.2.0",
+    "@capacitor/ios": "^8.2.0",
+    "@capacitor/splash-screen": "^8.0.1",
+    "@capacitor/status-bar": "^8.0.1"
+  },
+  "devDependencies": {
+    "sharp": "^0.34.5"
+  }
+}

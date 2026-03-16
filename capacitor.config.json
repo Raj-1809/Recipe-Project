@@ -1,0 +1,28 @@
+{
+  "appId": "com.fitmealplanner.app",
+  "appName": "FitMeal Planner",
+  "webDir": "www",
+  "bundledWebRuntime": false,
+  "ios": {
+    "contentInset": "always",
+    "backgroundColor": "#0d1117",
+    "scrollEnabled": false,
+    "limitsNavigationsToAppBoundDomains": true
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 2000,
+      "launchAutoHide": true,
+      "backgroundColor": "#0d1117",
+      "iosSpinnerStyle": "small",
+      "spinnerColor": "#22c55e",
+      "showSpinner": true,
+      "splashFullScreen": true,
+      "splashImmersive": true
+    },
+    "StatusBar": {
+      "style": "Dark",
+      "backgroundColor": "#161b22"
+    }
+  }
+}
